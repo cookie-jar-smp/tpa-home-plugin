@@ -1,0 +1,28 @@
+name: SpigotMavenPlugin
+version: '${project.version}'
+main: net.pifermet.spigotmavenplugin.SpigotMavenPlugin
+api-version: 1.19
+authors: [ pifermet ]
+description: First Spigot Plugin using Maven test
+website: none
+commands:
+  hi:
+    description: Says hi to the player.
+    usage: /<command>
+  tpa:
+    description: Request to tp to another player.
+    usage: /<command>
+  tpaccept:
+    description: Accept a teleport request from the latest player.
+    usage: /<command>
+  sethome:
+    description: Set home for a player.
+    usage: /<command>
+  delhome:
+    description: Delete a home for a player.
+    usage: /<command>
+  home:
+    description: Go to a player home.
+    usage: /<command>
+
+
