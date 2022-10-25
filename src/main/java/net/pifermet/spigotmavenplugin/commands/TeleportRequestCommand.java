@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -45,26 +46,22 @@ public class TeleportRequestCommand implements CommandExecutor {
             reciever.spigot().sendMessage(tc);
             sender.sendMessage(ChatColor.BLUE + "You have sent a teleport request to " + reciever.getName() + ". They have 30 seconds to accept. ");
 
-            Timer t = new java.util.Timer();
-            t.schedule(
-                    new java.util.TimerTask() {
-                        @Override
-                        public void run() {
-                            String updatedRequests = pdc.get(latestRequest, PersistentDataType.STRING);
-                            String newRequests = "";
-                            for (String request : updatedRequests.split(",")) {
-                                if (!request.equals("") && request.split(" ")[1].equals(id.toString())) {
-                                    sender.sendMessage(ChatColor.YELLOW + "Your teleport request to " + args[0] + " has expired. ");
-                                    reciever.sendMessage(ChatColor.YELLOW + "The teleport request from " + sender.getName() + " has expired. ");
-                                } else if (!request.equals("")){
-                                    newRequests = newRequests + "," + request;
-                                }
-                            }
-                            pdc.set(latestRequest,PersistentDataType.STRING, newRequests);
+            BukkitRunnable runnable = new BukkitRunnable() {
+                public void run() {
+                    String updatedRequests = pdc.get(latestRequest, PersistentDataType.STRING);
+                    String newRequests = "";
+                    for (String request : updatedRequests.split(",")) {
+                        if (!request.equals("") && request.split(" ")[1].equals(id.toString())) {
+                            sender.sendMessage(ChatColor.YELLOW + "Your teleport request to " + args[0] + " has expired. ");
+                            reciever.sendMessage(ChatColor.YELLOW + "The teleport request from " + sender.getName() + " has expired. ");
+                        } else if (!request.equals("")){
+                            newRequests = newRequests + "," + request;
                         }
-                    },
-                    30000
-            );
+                    }
+                    pdc.set(latestRequest,PersistentDataType.STRING, newRequests);
+                }
+            };
+            runnable.runTaskLater(SpigotMavenPlugin.getInstance(),6000);
             return true;
         } catch (Exception e) {
             sender.sendMessage(ChatColor.YELLOW + "The player name or command you have entered is either invalid or already sent.  ");

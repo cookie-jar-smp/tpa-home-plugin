@@ -10,6 +10,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.LocalTime;
 import java.util.Timer;
@@ -27,23 +28,28 @@ public class TeleportAcceptCommand implements CommandExecutor {
                     foundPlayer = true;
                     sender.sendMessage(ChatColor.GREEN + "You accepted the teleport request. ");
                     Bukkit.getPlayer(args[0]).sendMessage(ChatColor.GREEN + sender.getName() + " accepted your teleport request.");
-                    sender.sendMessage(ChatColor.YELLOW  + "You will be teleported in 5 seconds. If you move/take damage this will be cancelled. ");
+                    Bukkit.getPlayer(args[0]).sendMessage(ChatColor.YELLOW  + "You will be teleported in 5 seconds. If you move/take damage this will be cancelled. ");
                     Location prevLoc = Bukkit.getPlayer(args[0]).getLocation();
-                    Timer t = new java.util.Timer();
-                    t.schedule(
-                            new java.util.TimerTask() {
-                                @Override
-                                public void run() {
-                                    if (prevLoc.equals(Bukkit.getPlayer(sender.getName()).getLocation())) {
-                                        Bukkit.getPlayer(args[0]).teleport(Bukkit.getPlayer(sender.getName()));
-                                        sender.sendMessage(ChatColor.GREEN + "You did not move so you have been teleported! :D");
-                                    } else {
-                                        sender.sendMessage(ChatColor.YELLOW + "Uh oh! You moved so you were not teleported! :(");
-                                    }
+                    NamespacedKey latestRequest = new NamespacedKey(SpigotMavenPlugin.getInstance(), "latestTpRequest");
+                    BukkitRunnable runnable = new BukkitRunnable() {
+                        public void run() {
+                            if (prevLoc.equals(Bukkit.getPlayer(args[0]).getLocation())) {
+                                Bukkit.getPlayer(args[0]).teleport(Bukkit.getPlayer(sender.getName()));
+                                Bukkit.getPlayer(args[0]).sendMessage(ChatColor.GREEN + "You did not move so you have been teleported! :D");
+                            } else {
+                                Bukkit.getPlayer(args[0]).sendMessage(ChatColor.YELLOW + "Uh oh! You moved so you were not teleported! :(");
+                            }
+                            String updatedRequests = pdc.get(latestRequest, PersistentDataType.STRING);
+                            String newRequests = "";
+                            for (String request : updatedRequests.split(",")) {
+                                if (!request.equals("") && request.split(" ")[0].equals(sender.getName())){
+                                    newRequests = newRequests + "," + request;
                                 }
-                            },
-                            5000);
-                    sender.sendMessage(ChatColor.GREEN + "You have been teleport to home #" + args[0] + ".");
+                            }
+                            pdc.set(latestRequest,PersistentDataType.STRING, newRequests);
+                        }
+                    };
+                    runnable.runTaskLater(SpigotMavenPlugin.getInstance(),100);
                     return true;
                 } else if (!request.equals("")){
                     endingString = endingString + "," + request;
