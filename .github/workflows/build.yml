@@ -6,26 +6,26 @@ on:
       - "v*"
 
 jobs:
-Explore-GitHub-Actions:
-  runs-on: ubuntu-latest
-  steps:
-      - name: Clone Repositry
-        uses: actions/checkout@v3
+  build:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Clone Repositry
+          uses: actions/checkout@v3
 
-      - name: Maven Compile
-        run: maven compile
+        - name: Maven Compile
+          run: maven compile
 
-      - name: Maven Package
-        run: maven package
+        - name: Maven Package
+          run: maven package
 
-      - name: Delete Unnecessary JAR File
-        run: rm target/original-*.jar
+        - name: Delete Unnecessary JAR File
+          run: rm target/original-*.jar
 
-      - name: Rename & Move File
-        run: mv target/*.jar "tpa-home-plugin-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.jar"
+        - name: Rename & Move File
+          run: mv target/*.jar "tpa-home-plugin-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.jar"
 
-      - uses: ncipollo/release-action@v1
-        with:
-          artifacts: tpa-home-plugin-*.jar
-          bodyFile: ".github/release_body.md"
-          draft: true
+        - uses: ncipollo/release-action@v1
+          with:
+            artifacts: tpa-home-plugin-*.jar
+            bodyFile: ".github/release_body.md"
+            draft: true
