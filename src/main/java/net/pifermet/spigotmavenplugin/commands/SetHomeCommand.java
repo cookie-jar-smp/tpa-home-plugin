@@ -33,9 +33,9 @@ public class SetHomeCommand implements CommandExecutor {
                 String worldType = "";
                 if (playerLocation.getWorld().getName().equals("world")) {
                     worldType = "overworld";
-                } else if (playerLocation.getWorld().getName().equals("world_the_nether")) {
+                } else if (playerLocation.getWorld().getName().equals("world_nether")) {
                     worldType = "the_nether";
-                } else if (playerLocation.getWorld().getName().equals("world_the_end")) {
+                } else if (playerLocation.getWorld().getName().equals("world_end")) {
                     worldType = "the_end";
                 }
                 pdc.set(homeWorldKey, PersistentDataType.STRING, worldType);
